@@ -9,7 +9,6 @@ function isHost(req,res,next)
         // console.log(objects);
         if  (objects.role === "host") 
             {
-                console.log("true")
                 req.user.role="host"
                 next();
             }

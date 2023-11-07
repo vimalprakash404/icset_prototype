@@ -18,4 +18,4 @@ const eventSchema = new mongoos.Schema({
 
 const Event = mongoos.model('Event',eventSchema);
 
-module.export = Event;
+module.exports = Event;

@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const authentication  = require("../../middleware/auth") 
 const {isHost} = require("../../middleware/host") 
+const Event = require("../../models/event");
+const { ObjectId } = require('mongodb');
 router.post("/create",authentication,isHost,(req, res) => {
     const {title, description, venu, date, workshops} =req.body;
     console.log(req.user.userId);
@@ -38,10 +40,34 @@ router.post("/create",authentication,isHost,(req, res) => {
         {
             return res.status(500).json({message  : "workkshops should be in array ", validation : false })
         }
+
     }
-    
-    return res.status(400).send({message :"data is working"})
+    const host = req.user.userId;
+    const event_ob = new Event({title , description , venu , date , workshops, host});
+    event_ob.save(); 
+    return res.status(400).send({success : false, message  : "Event created success"})
 })
+
+
+router.post("/",authentication, isHost,async (req,res)=>{
+    console.log(req.user);
+    const userid = req.user.userId ;
+  if (!ObjectId.isValid(userid))
+  {
+    return res.status(200).json({ validation : false , message :" wrong user id "})
+  }
+  else {
+    const event = await  Event.find({host : new ObjectId(userid)})
+    if (event.length === 0)
+    {
+        return res.status(400).json({message :" event not found"});
+    }
+    else {
+        return res.status(400).json(event)
+    }
+  }
+});
+
 
 var isDate = function(date) {
     return (new Date(date) !== "Invalid Date") && !isNaN(new Date(date));

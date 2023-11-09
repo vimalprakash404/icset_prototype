@@ -1,20 +1,24 @@
 const express = require('express');
-const mongoose = require('mongoose');
+
+
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const path = require('path');
 const authRoutes = require("./routes/users")
 const sample = require("./routes/host/sample")
 // import host functions
-const host = require("./routes/host/host")
+const host = require("./routes/host/host");
+// const { default: mongoose } = require('mongoose');
 
 
 require('dotenv').config();
+const mongoose = require("./db/connection")
 const port = process.env.PORT || 3000; 
 const app = express();
 app.use(express.json());
+
 //database 
-mongoose.connect(process.env.MONGODB_URI);
+// mongoose.connect(process.env.MONGODB_URI);
 // adding routes
 app.use('/auth',authRoutes);
  app.use("/host",host)

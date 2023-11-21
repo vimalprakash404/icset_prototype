@@ -37,6 +37,11 @@ router.post("/create/participants", async (req, res) => {
 
 });
 
+router.post("/participants/add", async (req, res)=>{
+    const {event} = re
+    return res.status(400).json({message :  "event not founded"})
+});
+
 router.post("/create/group", async (req, res) => {
     const { event } = req.body
     const data = await createGroup(event);
@@ -68,6 +73,7 @@ router.post("/group/add",(req, res)=>{
     const {event, name}= req.body
     addgroupdata(res, event, name);
 })
+
 
 
 async function addgroupdata(res, event, name) {

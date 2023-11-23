@@ -6,7 +6,8 @@ const { ObjectId } = require('mongodb');
 // const { validate } = require('../../models/user');
 const db_connection = require("../../db/connection");
 const mongoose = require('mongoose')
-const {Groups,groupsSchema} = require('../../models/group');
+const { Groups, groupsSchema } = require('../../models/group');
+const workshop = require("../../models/workshop")
 
 
 router.get("/", (req, res) => {
@@ -28,6 +29,17 @@ router.post("/create/participants", async (req, res) => {
     const modelExists = collections.some((collection) => collection.name === modelName.toLowerCase());
 
     if (!modelExists) {
+        const workshop_model = await workshop.find();
+        console.log(workshop_model);
+        let Schema_data = {};
+
+        for (let i = 0; i < event_object.workshops.length; i++) {
+            let key = event_object.workshops[i]; // Replace event_object.workshops[i] with your actual key
+            let data = { [key]: {type  : "Number" , default: "0"} };
+            Schema_data = { ...Schema_data, ...data };
+        }
+
+        console.log(Schema_data);
         Participants_Dynamic(modelName);
         return res.status(400).json({ success: true, message: "model added" });
     }
@@ -37,9 +49,9 @@ router.post("/create/participants", async (req, res) => {
 
 });
 
-router.post("/participants/add", async (req, res)=>{
-    const {event} = re
-    return res.status(400).json({message :  "event not founded"})
+router.post("/participants/add", async (req, res) => {
+    const { event } = re
+    return res.status(400).json({ message: "event not founded" })
 });
 
 router.post("/create/group", async (req, res) => {
@@ -69,8 +81,8 @@ async function createGroup(event) {
     }
 }
 
-router.post("/group/add",(req, res)=>{
-    const {event, name}= req.body
+router.post("/group/add", (req, res) => {
+    const { event, name } = req.body
     addgroupdata(res, event, name);
 })
 
@@ -78,44 +90,43 @@ router.post("/group/add",(req, res)=>{
 
 async function addgroupdata(res, event, name) {
     modelName = "group_" + event;
-    const newGroupdata =  mongoose.model(modelName,groupsSchema);
+    const newGroupdata = mongoose.model(modelName, groupsSchema);
     console.log(newGroupdata);
-    const dataExist =await newGroupdata.findOne({name: name })
+    const dataExist = await newGroupdata.findOne({ name: name })
     console.log(dataExist)
-    if (dataExist){
-        return res.status(400).json({message : "name duplication not allowed"})
+    if (dataExist) {
+        return res.status(400).json({ message: "name duplication not allowed" })
     }
-    else 
-    {
-        const newGroupdata =  mongoose.model(modelName,groupsSchema);
-        const dataob=new newGroupdata({name :name});
+    else {
+        const newGroupdata = mongoose.model(modelName, groupsSchema);
+        const dataob = new newGroupdata({ name: name });
         console.log(name)
         dataob.save();
-        return res.status(400).json({message : "added"})
+        return res.status(400).json({ message: "added" })
     }
 }
 
 // create 
-router.get("/group",async (request, responce)=>{
-    const {event} = request.body;
-    if (!ObjectId.isValid(event)){
-        return responce.status(400).json({success :  false , message : "object is not valid"})
+router.get("/group", async (request, responce) => {
+    const { event } = request.body;
+    if (!ObjectId.isValid(event)) {
+        return responce.status(400).json({ success: false, message: "object is not valid" })
     }
-    else{
-        const modelName =  "group_"+event;
+    else {
+        const modelName = "group_" + event;
         const collections = await db_connection.mongoose.connection.db.listCollections().toArray();
         const modelExists = collections.some((collection) => collection.name === modelName.toLowerCase());
-        if (!modelExists)
-        {
-            return responce.status(400).json({success: false, message : "group did not found"})
+        if (!modelExists) {
+            return responce.status(400).json({ success: false, message: "group did not found" })
         }
-        else 
-        {
-            const groupModel =  mongoose.model(modelName,groupsSchema);
-            const groupObject = await  groupModel.find({});
-            return responce.status(400).json({success : true , event  : groupObject })
+        else {
+            const groupModel = mongoose.model(modelName, groupsSchema);
+            const groupObject = await groupModel.find({});
+            return responce.status(400).json({ success: true, event: groupObject })
         }
     }
 });
+
+
 
 module.exports = router;

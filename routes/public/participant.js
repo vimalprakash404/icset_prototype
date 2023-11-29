@@ -136,4 +136,14 @@ router.get("/get/:event", async (req, res) => {
     }
 })
 
+router.get("/get/user/:event/:userid", async (req, res) => {
+    const user = req.params.userid;
+    const event = req.params.event;
+    const modelName = "particpants_" + event;
+    const newModel = Participants_Dynamic(modelName);
+    const data = await newModel.find({event : event, _id : user } );
+    return res.status(200).json({data})
+
+})
+
 module.exports = router;

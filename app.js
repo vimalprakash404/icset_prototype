@@ -9,6 +9,7 @@ const sample = require("./routes/host/sample")
 const public = require("./routes/public/public")
 // import host functions
 const host = require("./routes/host/host");
+const volunteer = require("./routes/public/volunter")
 // const { default: mongoose } = require('mongoose');
 
 
@@ -22,8 +23,9 @@ app.use(cors());
 // mongoose.connect(process.env.MONGODB_URI);
 // adding routes
 app.use('/auth',authRoutes);
-app.use("/host",host)
-app.use("/",public)
+app.use("/host",host);
+app.use("/",public);
+app.use("/volunter",volunteer);
 app.get("/",(req, res)=>{
     return res.send("hello");
 })

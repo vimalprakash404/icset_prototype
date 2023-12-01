@@ -21,6 +21,9 @@ const dynamic_schema = new mongoose.Schema({
       type : mongoose.Schema.Types.ObjectId,
       ref : "Event"
   },
+  group :{
+    type : mongoose.Schema.Types.ObjectId,
+  },
 workshops:mongoose.Schema.Types.Mixed
 })
 

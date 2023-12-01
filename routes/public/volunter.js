@@ -83,4 +83,33 @@ router.get("/get/group/:eventid", async (req, res) => {
     
 })
 
+
+router.get("/getusergroup/:eventid/:groupid",async (req, res) => {
+    const event_id = req.params.eventid;
+    const group_id = req.params.groupid;
+    if (!isValidObjectId(event_id))
+    {
+        return res.status(400).json({success : false , message : "not valid event id"})
+    }
+    else if(!isValidObjectId(group_id)){
+        return res.status(400).json({success : false , message : "not valid group id"})
+    }
+    else{
+        if (await doesCollectionExist("group_"+event_id)){
+            const model_name = "particpants_"+event_id;
+            const particpants_model = Participants_Dynamic(model_name);
+            const data = await particpants_model.find({"group":group_id});
+            if (!data){
+                res.status(200).json({success:false, message : "no data"})
+            }
+            return res.status(200).json({success : true , data})
+        }
+        else{
+            return res.status(400).json({success : false , message : "group does not exists"})
+        }
+        
+        
+    }
+
+})
 module.exports = router

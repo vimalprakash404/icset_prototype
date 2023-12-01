@@ -1,7 +1,9 @@
 const express = require("express")
 const router = express.Router();
+const mongoose = require("mongoose")
 const { Participants_Dynamic } = require("../../models/particpants");
-
+const dbconnnection = require("../../db/connection")
+const {Groups} = require("../../models/group")
 router.post("/verify", async (req, res) => {
     const { workshop, userid, eventid } = req.body;
     try {
@@ -19,14 +21,12 @@ router.post("/verify", async (req, res) => {
         console.log(model_name);
         const particpants_model = Participants_Dynamic(model_name);
         const data = await particpants_model.findOne({ event: eventid, _id: userid });
-        
-        if (data.workshops[workshop] === 0)
-        {
-            return res.status(200).json({"verification":false,"message":"not register for work shop"})
+
+        if (data.workshops[workshop] === 0) {
+            return res.status(200).json({ "verification": false, "message": "not register for work shop" })
         }
-        else if(data.workshops[workshop] === 2)
-        {
-            return res.status(200).json({"verification":false,"message":"verified"})
+        else if (data.workshops[workshop] === 2) {
+            return res.status(200).json({ "verification": false, "message": "verified" })
         }
         data.workshops[workshop] = 2;
         await data.save();
@@ -34,10 +34,53 @@ router.post("/verify", async (req, res) => {
         return res.status(400).json({ "verification": true })
     }
     catch (err) {
-        return res.status(400).json({ "verification": false , "error" : err})
+        return res.status(400).json({ "verification": false, "error": err })
     }
 
 });
 
+function isValidObjectId(id) {
+    return mongoose.Types.ObjectId.isValid(id);
+}
+
+
+async function doesCollectionExist(collectionNameToCheck) {
+    try {
+
+        const collections = await dbconnnection.connection.db.listCollections().toArray();
+        //   console.log(collections);
+        const collectionExists = collections.some(collection => collection.name === collectionNameToCheck);
+
+        if (collectionExists) {
+            console.log(`Collection '${collectionNameToCheck}' exists.`);
+            return true;
+        } else {
+            console.log(`Collection '${collectionNameToCheck}' does not exist.`);
+            return false;
+        }
+
+        // Close the MongoDB connection
+        await mongoose.connection.close();
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+router.get("/get/group/:eventid", async (req, res) => {
+    const event_id = req.params.eventid;
+    if (!isValidObjectId(event_id)) {
+        return res.status(400).json({ "message": "event is not valid" })
+    }
+    const model_name="group_"+event_id;
+    console.log(await doesCollectionExist("group_" + event_id))
+    if (await doesCollectionExist("group_" + event_id)) {
+        const group_model= Groups(model_name)
+        const data =await group_model.find()
+        return res.status(400).json({"group":data, success : true})
+    }
+    else {
+        return res.status(200).json({success : false ,"message" : "invalid event id" });
+    }
+    
+})
 
 module.exports = router

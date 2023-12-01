@@ -6,6 +6,7 @@ const readLine = require("readline")
 const { Participants_Dynamic } = require("../../models/particpants")
 
 const Event_model = require("../../models/event")
+const Group_model = require("../../models/group")
 router.post("/add", async (req, res) => {
     const { name, mobile, email, event } = req.body;
 
@@ -119,9 +120,7 @@ async function add_participants(res, name, mobile, email, event) {
         res.status(200).json({"message": "sample"})
     }
 }
-async function getAllUser() {
 
-}
 router.get("/get/:event", async (req, res) => {
     const  event  = req.params.event;
     console.log(event);
@@ -145,5 +144,8 @@ router.get("/get/user/:event/:userid", async (req, res) => {
     return res.status(200).json({data})
 
 })
+
+
+
 
 module.exports = router;

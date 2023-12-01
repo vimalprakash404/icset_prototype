@@ -11,6 +11,7 @@ const public = require("./routes/public/public")
 const host = require("./routes/host/host");
 const volunteer = require("./routes/public/volunter")
 // const { default: mongoose } = require('mongoose');
+const  register = require("./routes/authentication/register")
 
 
 require('dotenv').config();
@@ -26,6 +27,7 @@ app.use('/auth',authRoutes);
 app.use("/host",host);
 app.use("/",public);
 app.use("/volunter",volunteer);
+app.use("/register",register);
 app.get("/",(req, res)=>{
     return res.send("hello");
 })

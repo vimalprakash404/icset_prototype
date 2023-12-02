@@ -116,7 +116,9 @@ async function add_participants(res, name, mobile, email, event) {
         }
         const Participants_Model =  Participants_Dynamic(modelName);
         const model =new  Participants_Model(data);
-        model.save();
+        console.log(model);
+        
+        // model.save();
         res.status(200).json({"message": "sample"})
     }
 }

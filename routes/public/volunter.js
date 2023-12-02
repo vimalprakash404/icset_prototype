@@ -4,17 +4,19 @@ const mongoose = require("mongoose")
 const { Participants_Dynamic } = require("../../models/particpants");
 const dbconnnection = require("../../db/connection")
 const {Groups} = require("../../models/group")
+const workshop_model = require("../../models/workshop")
+
 router.post("/verify", async (req, res) => {
     const { workshop, userid, eventid } = req.body;
     try {
         if (!workshop) {
-            return res.status(403).send({ "message": "please enter the workshop data", "validation": false })
+            return res.status(200).send({ "message": "please enter the workshop data", "validation": false })
         }
         else if (!userid) {
-            return res.status(403).send({ "message": "please the userid ", 'validation': false });
+            return res.status(200).send({ "message": "please the userid ", 'validation': false });
         }
         else if (!eventid) {
-            return res.status(403).send({ "message": "plesae the eventid", "validation": false });
+            return res.status(200).send({ "message": "plesae the eventid", "validation": false });
         }
 
         const model_name = "particpants_" + eventid;
@@ -31,10 +33,10 @@ router.post("/verify", async (req, res) => {
         data.workshops[workshop] = 2;
         await data.save();
         await particpants_model.updateOne({ event: eventid, _id: userid }, data)
-        return res.status(400).json({ "verification": true })
+        return res.status(200).json({ "verification": true })
     }
     catch (err) {
-        return res.status(400).json({ "verification": false, "error": err })
+        return res.status(200).json({ "verification": false, "error": err })
     }
 
 });
@@ -68,14 +70,14 @@ async function doesCollectionExist(collectionNameToCheck) {
 router.get("/get/group/:eventid", async (req, res) => {
     const event_id = req.params.eventid;
     if (!isValidObjectId(event_id)) {
-        return res.status(400).json({ "message": "event is not valid" })
+        return res.status(200).json({ "message": "event is not valid" })
     }
     const model_name="group_"+event_id;
     console.log(await doesCollectionExist("group_" + event_id))
     if (await doesCollectionExist("group_" + event_id)) {
         const group_model= Groups(model_name)
         const data =await group_model.find()
-        return res.status(400).json({"group":data, success : true})
+        return res.status(200).json({"group":data, success : true})
     }
     else {
         return res.status(200).json({success : false ,"message" : "invalid event id" });
@@ -90,10 +92,10 @@ router.get("/getusergroup/:eventid/:groupid/:workshop",async (req, res) => {
     const workshop = req.params.workshop
     if (!isValidObjectId(event_id))
     {
-        return res.status(400).json({success : false , message : "not valid event id"})
+        return res.status(200).json({success : false , message : "not valid event id"})
     }
     else if(!isValidObjectId(group_id)){
-        return res.status(400).json({success : false , message : "not valid group id"})
+        return res.status(200).json({success : false , message : "not valid group id"})
     }
     else{
         if (await doesCollectionExist("group_"+event_id)){
@@ -107,7 +109,7 @@ router.get("/getusergroup/:eventid/:groupid/:workshop",async (req, res) => {
             return res.status(200).json({success : true , data})
         }
         else{
-            return res.status(400).json({success : false , message : "group does not exists"})
+            return res.status(200).json({success : false , message : "group does not exists"})
         }
         
         

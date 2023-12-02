@@ -8,7 +8,7 @@ const { Participants_Dynamic } = require("../../models/particpants")
 const Event_model = require("../../models/event")
 const Group_model = require("../../models/group")
 router.post("/add", async (req, res) => {
-    const { name, mobile, email, event } = req.body;
+    const { name, mobile, email, event ,group} = req.body;
 
     async function documentExist(objectId) {
         try {
@@ -76,11 +76,11 @@ router.post("/add", async (req, res) => {
         }
     }
 
-    add_participants(res, name, mobile, email, event);
+    add_participants(res, name, mobile, email, event,group);
     // return res.status(200).json({ name, mobile, email, event })
 });
 
-async function add_participants(res, name, mobile, email, event) {
+async function add_participants(res, name, mobile, email, event,group) {
     const modelName = "particpants_" + event;
     const event_ob = await Event_model.findById(event).exec();
     let Schema_data_ob = {};
@@ -112,13 +112,13 @@ async function add_participants(res, name, mobile, email, event) {
             email : email,
             mobile : mobile ,
             event : event,
-            workshops : workshops
+            workshops : workshops,
+            group :group
         }
         const Participants_Model =  Participants_Dynamic(modelName);
         const model =new  Participants_Model(data);
         console.log(model);
-        
-        // model.save();
+        model.save();
         res.status(200).json({"message": "sample"})
     }
 }

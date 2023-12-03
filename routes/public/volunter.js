@@ -41,6 +41,41 @@ router.post("/verify", async (req, res) => {
 
 });
 
+router.post("/unverify", async (req, res) => {
+    const { workshop, userid, eventid } = req.body;
+    try {
+        if (!workshop) {
+            return res.status(200).send({ "message": "please enter the workshop data", "validation": false })
+        }
+        else if (!userid) {
+            return res.status(200).send({ "message": "please the userid ", 'validation': false });
+        }
+        else if (!eventid) {
+            return res.status(200).send({ "message": "plesae the eventid", "validation": false });
+        }
+
+        const model_name = "particpants_" + eventid;
+        console.log(model_name);
+        const particpants_model = Participants_Dynamic(model_name);
+        const data = await particpants_model.findOne({ event: eventid, _id: userid });
+
+        if (data.workshops[workshop] === 0) {
+            return res.status(200).json({ "verification": false, "message": "not register for work shop" })
+        }
+        else if (data.workshops[workshop] === 1) {
+            return res.status(200).json({ "verification": false, "message": "not verified" })
+        }
+        data.workshops[workshop] = 1;
+        await data.save();
+        await particpants_model.updateOne({ event: eventid, _id: userid }, data)
+        return res.status(200).json({ "verification": true })
+    }
+    catch (err) {
+        return res.status(200).json({ "verification": false, "error": err })
+    }
+
+});
+
 function isValidObjectId(id) {
     return mongoose.Types.ObjectId.isValid(id);
 }

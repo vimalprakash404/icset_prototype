@@ -4,9 +4,12 @@ const mongoose = require("mongoose")
 const { Participants_Dynamic } = require("../../models/particpants");
 const dbconnnection = require("../../db/connection")
 const {Groups} = require("../../models/group")
-const workshop_model = require("../../models/workshop")
+const workshop_model = require("../../models/workshop");
+const { isVolunter } = require("../../middleware/volunteer");
+const auth = require("../../middleware/auth")
 
-router.post("/verify", async (req, res) => {
+
+router.post("/verify",auth,isVolunter, async (req, res) => {
     const { workshop, userid, eventid } = req.body;
     try {
         if (!workshop) {

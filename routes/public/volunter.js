@@ -95,11 +95,27 @@ router.post("/unverify",auth,isVolunter, async (req, res) => {
 
 });
 
-router.get("/search/:input",(req, res) => {
-    const { input }= req.body.input;
-    console.log(input);
+router.get("/search/:eventid/:input", async(req, res) => {
+    const input = req.params.input;
+    const event_id = req.params.eventid;
+    console.log(event_id);
     const data_input = checkEmailOrPhone(input)
-    return res.json({data_input})
+    if (data_input == "Phone"){
+        const model_name = "particpants_"+event_id;
+        const particpants_model = Participants_Dynamic(model_name);
+        const data = await particpants_model.find({"mobile":input});
+        return res.status(200).json({data , invalid : false})
+    }
+    else if(data_input == "Email"){
+        const model_name = "particpants_"+event_id;
+        const particpants_model = Participants_Dynamic(model_name);
+        const data = await particpants_model.find({"email":input});
+        console.log()
+        return res.status(200).json({data,invalid : false})
+    }
+    else{
+        return res.status(200).json({"message": "inavlid input", invalid : true})
+    }
 })
 
 function isValidObjectId(id) {

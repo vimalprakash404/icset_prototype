@@ -44,7 +44,7 @@ router.post("/verify",auth,isVolunter, async (req, res) => {
 
 });
 
-router.post("/unverify", async (req, res) => {
+router.post("/unverify",auth,isVolunter, async (req, res) => {
     const { workshop, userid, eventid } = req.body;
     try {
         if (!workshop) {

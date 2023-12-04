@@ -8,6 +8,22 @@ const workshop_model = require("../../models/workshop");
 const { isVolunter } = require("../../middleware/volunteer");
 const auth = require("../../middleware/auth")
 
+function checkEmailOrPhone(input) {
+    // Regular expression for email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    // Regular expression for phone number validation (assuming a simple format)
+    const phoneRegex = /^\d{10}$/;
+
+    if (emailRegex.test(input)) {
+        return 'Email';
+    } else if (phoneRegex.test(input)) {
+        return 'Phone';
+    } else {
+        return 'Invalid';
+    }
+}
+
 
 router.post("/verify",auth,isVolunter, async (req, res) => {
     const { workshop, userid, eventid } = req.body;
@@ -78,6 +94,13 @@ router.post("/unverify",auth,isVolunter, async (req, res) => {
     }
 
 });
+
+router.get("/search/:input",(req, res) => {
+    const { input }= req.body.input;
+    console.log(input);
+    const data_input = checkEmailOrPhone(input)
+    return res.json({data_input})
+})
 
 function isValidObjectId(id) {
     return mongoose.Types.ObjectId.isValid(id);

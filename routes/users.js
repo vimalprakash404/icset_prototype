@@ -39,11 +39,11 @@ router.post("/login",async (req, res)=> {
 
         if ( !isPasswordValid)
         {
-            return res.status(401).json({error : "Authentication failed", message : "wrong password"})
+            return res.status(401).json({error : "Authentication failed", message : "wrong password" ,status: false})
         }
 
         const token = jwt.sign({userId : user._id},"key",{expiresIn : '1h'});
-        return res.status(200).json({token , userId : user._id, role : user.role , name : user.username})
+        return res.status(200).json({token , userId : user._id, role : user.role , name : user.username , status : false})
     }
     catch (error)
     {

@@ -24,7 +24,8 @@ const dynamic_schema = new mongoose.Schema({
   group :{
     type : mongoose.Schema.Types.ObjectId,
   },
-workshops:mongoose.Schema.Types.Mixed
+workshops:mongoose.Schema.Types.Mixed,
+time:mongoose.Schema.Types.Mixed
 })
 
 const Participants_Dynamic = (modelname)=>{

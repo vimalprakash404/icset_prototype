@@ -9,6 +9,7 @@ const { isVolunter } = require("../../middleware/volunteer");
 const auth = require("../../middleware/auth")
 const { create_model, insert_model } = require("../../controller/logcontroller");
 const { verify } = require("jsonwebtoken");
+const e = require("express");
 
 function checkEmailOrPhone(input) {
     // Regular expression for email validation
@@ -54,6 +55,7 @@ router.post("/verify", auth, isVolunter, async (req, res) => {
         data.workshops[workshop] = 2;
         const currentTimeseries = new Date();
         data.time = Object.assign({ [workshop]: currentTimeseries }, data.time);
+        data.time_stamp = currentTimeseries;
         await data.save();
 
         await particpants_model.updateOne({ event: eventid, _id: userid }, data)
@@ -72,17 +74,19 @@ router.post("/sync", async (req, res) => {
     const particpants_model = Participants_Dynamic(model_name);
     try {
         for (let i = 0; i < data.length; i++) {
-            console.log("ggggg")
             let data_value = await particpants_model.findOne({ event: event, _id: data[i].id });
             data_value.workshops[data[i].workshop] = 2;
+            const currentTimeseries = new Date();
+            data_value.time = Object.assign({ [workshop]: currentTimeseries }, data_value.time);
+            data_value.time_stamp = currentTimeseries;
             data_value.save();
             await particpants_model.updateOne({ event: event, _id: data[i].id }, data_value);
             console.log("saved");
         }
-        return res.status(200).json({"message":"saved"})
+        return res.status(200).json({ "message": "saved" })
     }
     catch (err) {
-        return res.status(200).json({"message":"unsaved"})
+        return res.status(200).json({ "message": "unsaved" })
     }
 
 });
@@ -139,7 +143,6 @@ router.get("/search/:eventid/:input", async (req, res) => {
         const model_name = "particpants_" + event_id;
         const particpants_model = Participants_Dynamic(model_name);
         const data = await particpants_model.find({ "email": input });
-        console.log()
         return res.status(200).json({ data, invalid: false })
     }
     else {
@@ -250,5 +253,64 @@ router.get("/getusergroup/unverify/:eventid/:groupid/:workshop", async (req, res
     }
 
 })
+
+async function getVerifiedUsersAfterTimestamp(event_id, timestamp) {
+    try {
+        const model_name = "particpants_" + event_id;
+        const particpants_model = Participants_Dynamic(model_name);
+        if (timestamp !== null) {
+            const verifiedUsers = await particpants_model.find({
+                time_stamp: { $gt: timestamp }, // Filter by timestamp greater than or equal to the provided value
+
+            });
+            return verifiedUsers;
+        }
+        else {
+            const verifiedUsers = await particpants_model.find({});
+            return verifiedUsers;
+        }
+
+    } catch (error) {
+        console.error('Error:', error);
+        throw error;
+    }
+}
+
+async function getMaxTime(event_id) {
+    try {
+        const model_name = "particpants_" + event_id;
+        const particpants_model = Participants_Dynamic(model_name);
+        const latestDocument = await particpants_model.findOne({}).sort({ time_stamp: -1 });
+        
+        if (latestDocument) {
+            // Use the specified field name to extract the value
+            const fieldValue = latestDocument["time_stamp"];
+            console.log(fieldValue);
+            return fieldValue;
+        } else {
+            // Handle the case where no documents exist in the collection
+            return null; // or any other default value
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        throw error;
+    }
+}
+
+router.post("/timestamp",async (req, res) => {
+    const { event, timestamp } = req.body;
+    if (timestamp === null) {
+        const particpants =await getVerifiedUsersAfterTimestamp(event, timestamp);
+        const Time =await getMaxTime(event)
+        return res.status(200).json({ particpants, Time })
+    }
+    else {
+        const particpants =await getVerifiedUsersAfterTimestamp(event, timestamp);
+        const time =await getMaxTime(event)
+        return res.status(200).json({ particpants, time })
+    }
+})
+
+
 
 module.exports = router

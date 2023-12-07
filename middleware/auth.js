@@ -11,7 +11,7 @@ function authentication(req,res,next)
     {
         if (err)
         {
-            return res.status(403).json({mssage : "invalid token"});
+            return res.status(403).json({message : "invalid token"});
         }
         req.user = user;
         //  console.log(user);

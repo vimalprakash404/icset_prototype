@@ -4,9 +4,9 @@ const authentication  = require("../../middleware/auth")
 const {isHost} = require("../../middleware/host") 
 const Event = require("../../models/event");
 const { ObjectId } = require('mongodb');
-router.post("/create",authentication,(req, res) => {
+router.post("/create",(req, res) => {
     const {title, description, venu, date, workshops} =req.body;
-    console.log(req.user.userId);
+    // console.log(req.user.userId);
     if(!title)
     {
         return res.status(500).json({message:"title not entered", validation  : false});
@@ -42,7 +42,8 @@ router.post("/create",authentication,(req, res) => {
         }
 
     }
-    const host = req.user.userId;
+    // const host = req.user.userId;
+    const host = "host";
     const event_ob = new Event({title , description , venu , date , workshops, host});
     event_ob.save(); 
     return res.status(400).send({success : false, message  : "Event created success"})

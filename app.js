@@ -7,6 +7,7 @@ const path = require('path');
 const authRoutes = require("./routes/users")
 const sample = require("./routes/host/sample")
 const public = require("./routes/public/public")
+// const user = require("./routes/users")
 // import host functions
 const host = require("./routes/host/host");
 const volunteer = require("./routes/public/volunter")
@@ -26,13 +27,11 @@ app.use(cors());
 app.use('/auth',authRoutes);
 app.use("/host",host);
 app.use("/",public);
+
 app.use("/volunter",volunteer);
-app.use("/register",register);
 app.get("/",(req, res)=>{
     return res.send("hello");
 })
-
-app.get("/host",)
 app.use("/sample",sample);
 app.listen(port,'0.0.0.0',()=>{
     console.log("app is running on "+port);

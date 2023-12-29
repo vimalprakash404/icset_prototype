@@ -43,7 +43,7 @@ router.post("/create",(req, res) => {
 
     }
     // const host = req.user.userId;
-    const host = "host";
+    const host = "656d64b2eb4f42945487e4f6";
     const event_ob = new Event({title , description , venu , date , workshops, host});
     event_ob.save(); 
     return res.status(400).send({success : false, message  : "Event created success"})

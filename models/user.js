@@ -20,7 +20,7 @@ const userSchema = new mongoos.Schema(
 
         role : {
             type : String , 
-            enum : [ "eventHost", "volunteer", "admin"],
+            enum : [ "eventHost", "volunteer", "admin","host"],
             default : "eventHost"
         }
     }

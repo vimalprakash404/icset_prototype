@@ -4,7 +4,7 @@ const authentication  = require("../../middleware/auth")
 const {isHost} = require("../../middleware/host") 
 const Event = require("../../models/event");
 const { ObjectId } = require('mongodb');
-router.post("/create",authentication,isHost,(req, res) => {
+router.post("/create",authentication,(req, res) => {
     const {title, description, venu, date, workshops} =req.body;
     console.log(req.user.userId);
     if(!title)

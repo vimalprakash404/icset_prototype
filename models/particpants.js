@@ -31,6 +31,17 @@ const dynamic_schema = new mongoose.Schema({
     }
 })
 
+
+dynamic_schema.statics.getTotalUser = async function (){
+    try { 
+        const  totalUsers = await this.countDocuments();
+        return totalUsers ;
+    }
+    catch (error){
+        return errors ;
+    }
+}
+
 const Participants_Dynamic = (modelname) => {
     return mongoose.model(modelname, dynamic_schema);
 }

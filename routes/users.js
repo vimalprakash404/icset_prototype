@@ -17,15 +17,14 @@ router.post("/register",async (req , res )=>{
           if (role === "host")
           {
             console.log(organization)
-            console.log("data")
             if ( organization === undefined )
             {
-                return res.status(500).json({message : "please enter the organisation name "})
+                return res.status(400).json({message : "please enter the organisation name "})
             }
           }
         if (await User.findOne({ email: email }))
         {
-            return res.status(500).json({message : "email already used"})
+            return res.status(400).json({message : "email already used"})
         }
         console.log(user);
         await user.save();

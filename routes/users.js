@@ -7,9 +7,22 @@ const jwt = require('jsonwebtoken')
 
 router.post("/register",async (req , res )=>{
     try {
-        const { username , email , password , role } = req.body;
+        const { username , email , password , role ,mobile , organization } = req.body;
         const hashedPassword =  await bcrypt.hash(password,10);
-        const user = new User({username , email , password : hashedPassword , role  });
+        const user = new User({username , email , password : hashedPassword , role   ,mobile , organization});
+
+        if (!/^\d{10}$/.test(mobile)) {
+            return res.status(400).json({ error: 'Invalid mobile number format. Please provide a 10-digit number.' });
+          }
+          if (role === "host")
+          {
+            console.log(organization)
+            console.log("data")
+            if ( organization === undefined )
+            {
+                return res.status(500).json({message : "please enter the organisation name "})
+            }
+          }
         if (await User.findOne({ email: email }))
         {
             return res.status(500).json({message : "email already used"})

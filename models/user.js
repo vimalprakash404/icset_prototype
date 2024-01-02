@@ -22,6 +22,13 @@ const userSchema = new mongoos.Schema(
             type : String , 
             enum : [ "eventHost", "volunteer", "admin","host"],
             default : "eventHost"
+        },
+        mobile : {
+            type : String 
+        },
+        organization : {
+            type : String ,
+            require : false
         }
     }
 )

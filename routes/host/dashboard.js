@@ -38,7 +38,7 @@ router.get("/:event",async (req, res) => {
           value: verified_data
         })
       }
-    res.status(400).send({total_user , total_verified , workshoplist, verfied_workshop, total_workshop})
+    res.status(200).send({total_user , total_verified , workshoplist, verfied_workshop, total_workshop})
 })
 
 module.exports = router 

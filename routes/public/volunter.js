@@ -11,6 +11,12 @@ const { create_model, insert_model } = require("../../controller/logcontroller")
 const { verify } = require("jsonwebtoken");
 const e = require("express");
 
+
+// importing models
+
+
+const event_model = require("../../models/event")
+
 function checkEmailOrPhone(input) {
     // Regular expression for email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -296,6 +302,19 @@ async function getMaxTime(event_id) {
         throw error;
     }
 }
+
+router.get("/get/event",async (req , res) => {
+    const event = "this event"
+    try {
+        const data = await event_model.find();
+        return res.status(200).json({data})
+    }
+    catch(error){
+        res.status(500).send('Internal Server Error');
+    }
+    
+})
+
 
 router.post("/timestamp",async (req, res) => {
     const { event, timestamp } = req.body;

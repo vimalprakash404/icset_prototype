@@ -5,6 +5,7 @@ const workshopSchema=  new mongoose.Schema({
     {
         type : String,
         require : true ,
+        unique: false
     },
     description : String ,
     venu : String,
@@ -12,6 +13,10 @@ const workshopSchema=  new mongoose.Schema({
     event : {
         type : mongoose.Schema.Types.ObjectId,
         ref  : "Event",
+    },
+    icon : {
+        type  :  String  ,
+        require : true 
     }
 })
 

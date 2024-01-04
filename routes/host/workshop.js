@@ -5,6 +5,10 @@ const {isHost} = require("../../middleware/host")
 const workshop_model = require("../../models/workshop")
 const event_model = require("../../models/event");
 const { ObjectId } = require("mongodb");
+const { body, validationResult } = require("express-validator");
+
+
+
 
 workshop_router.post("/create", authentication, isHost,async (req, res) => {
     const { title, description, venu, event, date } = req.body;
@@ -96,4 +100,71 @@ async function create_event (title, description, event, date, venu)
     }
 
 }
+
+const validateWorkshop = [
+    body("title").isString().notEmpty(),
+    body("description").isString(),
+    body("venu").isString(),
+    body("date").isISO8601().toDate(),
+    body("event").isMongoId(),
+    body("icon").isString().notEmpty(),
+  ];
+
+
+workshop_router.post("/add", validateWorkshop, async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    try {
+      const workshop = new workshop_model(req.body);
+      const savedWorkshop = await workshop.save();
+      res.json(savedWorkshop);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+//Edit Api 
+
+workshop_router.post("/edit/:id", validateWorkshop, async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+  
+    try {
+      const updatedWorkshop = await workshop_model.findByIdAndUpdate(
+        req.params.id,
+        req.body,
+        { new: true }
+      );
+      res.json(updatedWorkshop);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  workshop_router.post("/delete/:id", async (req, res) => {
+    try {
+      const deletedWorkshop = await workshop_model.findByIdAndDelete(req.params.id);
+      res.json(deletedWorkshop);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+  
+
+
+workshop_router.get("/get/byEvent/:eventId", async (req, res) => {
+    try {
+      const workshops = await workshop_model.find({ event: req.params.eventId });
+      res.json(workshops);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+
+
 module.exports = { workshop_router };

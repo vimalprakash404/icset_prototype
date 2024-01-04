@@ -9,36 +9,36 @@ router.post("/create",(req, res) => {
     // console.log(req.user.userId);
     if(!title)
     {
-        return res.status(500).json({message:"title not entered", validation  : false});
+        return res.status(403).json({message:"title not entered", validation  : false});
     }
 
     if(!description)
     {
-        return res.status(500).json({message:"description not entered", validation  : false});
+        return res.status(403).json({message:"description not entered", validation  : false});
     }
     if(!venu)
     {
-        return res.status(500).json({message:"venu not entered", validation  : false});
+        return res.status(403).json({message:"venu not entered", validation  : false});
     }
     if(!date)
     {
-        return res.status(500).json({message:"date not entered", validation  : false});
+        return res.status(403).json({message:"date not entered", validation  : false});
     }
     else{
         if(!isDate(date))
         {
-            return res.status(500).json({message: "date is not valid", validation : false})
+            return res.status(403).json({message: "date is not valid", validation : false})
         }
         
     }
     if(!workshops)
     {
-        return res.status(500).json({message:"workshops not entered", validation  : false});
+        return res.status(403).json({message:"workshops not entered", validation  : false});
     }
     else {
         if (!isArray(workshops))
         {
-            return res.status(500).json({message  : "workkshops should be in array ", validation : false })
+            return res.status(403).json({message  : "workkshops should be in array ", validation : false })
         }
 
     }

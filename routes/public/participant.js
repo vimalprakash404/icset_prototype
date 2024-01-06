@@ -2,13 +2,37 @@ const express = require("express")
 const router = express.Router();
 const mongoose = require("mongoose")
 const readLine = require("readline")
+
 // const { check, validationResult } = require("express-validator");
 const { Participants_Dynamic } = require("../../models/particpants")
 
 const Event_model = require("../../models/event")
 const Group_model = require("../../models/group")
+
+function isValidObjectId(id) {
+    return mongoose.Types.ObjectId.isValid(id);
+}
+
+async function checkEventIdExists(id) {
+    try {
+        if (isValidObjectId(id)) {
+            const workshop = await Event_model.findById(id);
+            console.log("dataijaiajai" + !!workshop)
+            return !!workshop; // Returns true if the workshop is found, false otherwise
+        }
+        else {
+            console.log("is not valid")
+            return false
+        }
+    } catch (error) {
+        console.error("Error checking workshop existence:", error.message);
+        return false;
+    }
+}
+
+
 router.post("/add", async (req, res) => {
-    const { name, mobile, email, event ,group} = req.body;
+    const { name, mobile, email, event, group } = req.body;
 
     async function documentExist(objectId) {
         try {
@@ -76,11 +100,11 @@ router.post("/add", async (req, res) => {
         }
     }
 
-    add_participants(res, name, mobile, email, event,group);
+    add_participants(res, name, mobile, email, event, group);
     // return res.status(200).json({ name, mobile, email, event })
 });
 
-async function add_participants(res, name, mobile, email, event,group) {
+async function add_participants(res, name, mobile, email, event, group) {
     const modelName = "particpants_" + event;
     const event_ob = await Event_model.findById(event).exec();
     let Schema_data_ob = {};
@@ -100,33 +124,39 @@ async function add_participants(res, name, mobile, email, event,group) {
         return res.status(200).json({ message: "email duplication not allowed" })
     }
     else {
-        
-        let workshops  = {}
+
+        let workshops = {}
         event_ob.workshops.forEach((element) => {
 
-            workshops = {...workshops,...{[element]:0}}
+            workshops = { ...workshops, ...{ [element]: 0 } }
         })
         console.log(workshops);
         const data = {
-            name : name,
-            email : email,
-            mobile : mobile ,
-            event : event,
-            workshops : workshops,
-            group :group
+            name: name,
+            email: email,
+            mobile: mobile,
+            event: event,
+            workshops: workshops,
+            group: group
         }
-        const Participants_Model =  Participants_Dynamic(modelName);
-        const model =new  Participants_Model(data);
+        const Participants_Model = Participants_Dynamic(modelName);
+        const model = new Participants_Model(data);
         console.log(model);
         model.save();
-        res.status(200).json({"message": "sample"})
+        res.status(200).json({ "message": "sample" })
     }
 }
 
 router.get("/get/:event", async (req, res) => {
-    const  event  = req.params.event;
+    const event = req.params.event;
+
     console.log(event);
     try {
+        console.log("return",await checkEventIdExists(event))
+        if (! await checkEventIdExists(event)) {
+            const message = "not valid event id"
+            return res.status(400).json({ message })
+        }
         const modelName = "particpants_" + event;
         const newModel = Participants_Dynamic(modelName);
         const data = await newModel.find();
@@ -140,10 +170,14 @@ router.get("/get/:event", async (req, res) => {
 router.get("/get/user/:event/:userid", async (req, res) => {
     const user = req.params.userid;
     const event = req.params.event;
+    if (! await checkEventIdExists(event)) {
+        const message = "not valid event id"
+        return res.status(400).json({ message })
+    }
     const modelName = "particpants_" + event;
     const newModel = Participants_Dynamic(modelName);
-    const data = await newModel.find({event : event, _id : user } );
-    return res.status(200).json({data})
+    const data = await newModel.find({ event: event, _id: user });
+    return res.status(200).json({ data })
 
 })
 

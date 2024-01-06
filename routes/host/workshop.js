@@ -141,7 +141,8 @@ workshop_router.post("/edit/:id", validateWorkshop, async (req, res) => {
       );
       res.json(updatedWorkshop);
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      console.error(error.message)
+      res.status(400).json({ error: error.message });
     }
   });
 

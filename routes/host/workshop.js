@@ -119,6 +119,13 @@ workshop_router.post("/add", validateWorkshop, async (req, res) => {
     try {
       const workshop = new workshop_model(req.body);
       const savedWorkshop = await workshop.save();
+      const eventId = req.body.event;
+      const result = await event_model.findOneAndUpdate(
+        { _id: eventId },
+        { $push: { workshops: workshop.title } },
+        { new: true } // This option returns the modified document
+      );
+      console.log(result)
       res.json(savedWorkshop);
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -134,11 +141,19 @@ workshop_router.post("/edit/:id", validateWorkshop, async (req, res) => {
     }
   
     try {
+      const originalWorkshop = await workshop_model.findById(req.params.id);
       const updatedWorkshop = await workshop_model.findByIdAndUpdate(
         req.params.id,
         req.body,
         { new: true }
       );
+
+      if (originalWorkshop.title !== req.body.title) {
+        // Find the corresponding event and update the workshop title in the array
+        const eventId = originalWorkshop.event; // Assuming event is stored in the workshop model
+        await event_model.findByIdAndUpdate(eventId, { $pull: { workshops: originalWorkshop.title } });
+        await event_model.findByIdAndUpdate(eventId, { $push: { workshops: updatedWorkshop.title } });
+    }
       res.json(updatedWorkshop);
     } catch (error) {
       console.error(error.message)
@@ -148,12 +163,18 @@ workshop_router.post("/edit/:id", validateWorkshop, async (req, res) => {
 
   workshop_router.post("/delete/:id", async (req, res) => {
     try {
-      const deletedWorkshop = await workshop_model.findByIdAndDelete(req.params.id);
-      res.json(deletedWorkshop);
+        const deletedWorkshop = await workshop_model.findByIdAndDelete(req.params.id);
+        console.log(deletedWorkshop);
+        if (deletedWorkshop.event) {
+            const eventId = deletedWorkshop.event;
+            await event_model.findByIdAndUpdate(eventId, { $pull: { workshops: deletedWorkshop.title } });
+        }
+
+        res.json(deletedWorkshop);
     } catch (error) {
-      res.status(500).json({ error: error.message });
+        res.status(500).json({ error: error.message });
     }
-  });
+});
   
 
 

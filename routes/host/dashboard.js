@@ -11,6 +11,7 @@ router.get("/:event",async (req, res) => {
     console.log(event_id)
     const modelName = "particpants_" + event_id;
     const event_ob = await Event.findOne({_id:event_id});
+    console.log("data")
     const workshoplist = event_ob.workshops
     // const event_data =  await event_ob.find({_id:event_id})
     const newModel = Participants_Dynamic(modelName);

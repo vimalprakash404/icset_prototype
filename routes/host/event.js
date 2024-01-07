@@ -122,7 +122,7 @@ router.get("/", authentication, isHost, async (req, res) => {
     else {
         const event = await Event.find({ host: new ObjectId(userid) })
         if (event.length === 0) {
-            return res.status(200).json({ event: [] });
+            return res.status(200).json({ event });
         }
         else {
             return res.status(200).json(event)
@@ -130,6 +130,22 @@ router.get("/", authentication, isHost, async (req, res) => {
     }
 });
 
+
+router.get("/details/:id", async (req, res) => {
+    const userid = req.params.id;
+    if (!ObjectId.isValid(userid)) {
+        return res.status(200).json({ validation: false, message: " wrong user id " })
+    }
+    else {
+        const event = await Event.findOne({ _id: new ObjectId(userid) })
+        if (event.length === 0) {
+            return res.status(200).json({ event });
+        }
+        else {
+            return res.status(200).json(event)
+        }
+    }
+});
 
 var isDate = function (date) {
     return (new Date(date) !== "Invalid Date") && !isNaN(new Date(date));

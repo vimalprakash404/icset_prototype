@@ -13,7 +13,8 @@ const eventSchema = new mongoos.Schema({
     host : {
         type : mongoos.Schema.Types.ObjectId,
         ref : 'User',
-    }
+    },
+    icon :  String
 });
 
 const Event = mongoos.model('Event',eventSchema);

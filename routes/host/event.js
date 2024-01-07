@@ -122,10 +122,10 @@ router.get("/", authentication, isHost, async (req, res) => {
     else {
         const event = await Event.find({ host: new ObjectId(userid) })
         if (event.length === 0) {
-            return res.status(400).json({ message: " event not found" });
+            return res.status(200).json({ message: " event not found" });
         }
         else {
-            return res.status(400).json(event)
+            return res.status(200).json(event)
         }
     }
 });

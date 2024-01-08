@@ -138,12 +138,9 @@ router.get("/details/:id", async (req, res) => {
     }
     else {
         const event = await Event.findOne({ _id: new ObjectId(userid) })
-        if (event.length === 0) {
-            return res.status(200).json({ event });
-        }
-        else {
+       
             return res.status(200).json(event)
-        }
+        
     }
 });
 

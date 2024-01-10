@@ -47,6 +47,12 @@ router.get("/field/:eventid" , async (req , res ) => {
                 require :true ,
                 value : workshop_data,
                 name : "workshops"
+            },
+            {
+                label : "Gender" ,
+                type : "radio" ,
+                require :true ,
+                name : "gender"
             }
         ]
         await  workshop_model.find({event : event_data})

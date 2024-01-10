@@ -10,7 +10,7 @@ const Event_model = require("../../models/event")
 const Group_model = require("../../models/group");
 const { BSONSymbol } = require("mongodb");
 const { log } = require("console");
-const {Groups} = require("../../models/group")
+const { Groups } = require("../../models/group")
 const db = require("../../db/connection")
 const workshop_model = require("../../models/workshop")
 function isValidObjectId(id) {
@@ -36,16 +36,16 @@ async function checkEventIdExists(id) {
 
 function checkCollectionExists(collectionName) {
     return db.connection.db.listCollections({ name: collectionName }).next((err, collinfo) => {
-      if (err) {
-        console.error(`Error checking collection: ${err}`);
-        return false;
-      }
-      else {
-        return true;
-      }
+        if (err) {
+            console.error(`Error checking collection: ${err}`);
+            return false;
+        }
+        else {
+            return true;
+        }
     });
-  }
-  
+}
+
 
 
 const event_checker = async (value) => {
@@ -62,7 +62,7 @@ const email_checker = async (value, { req, res }) => {
     if ((await Event_model.findOne({ "_id": event })) !== null) {
         {
             const particiapant_model = Participants_Dynamic("particpants_" + event);
-            if (await particiapant_model.findOne({"email": value}) !== null) {
+            if (await particiapant_model.findOne({ "email": value }) !== null) {
                 throw new Error("email already exist")
             }
             else {
@@ -76,13 +76,13 @@ const email_checker = async (value, { req, res }) => {
 }
 
 
-const group_checker = async (value , {req}) => {
+const group_checker = async (value, { req }) => {
     const event = req.body.event
-    if (await Event_model.findOne({"_id" : event}) !== null){
-        if (await checkCollectionExists("group_"+event)){
+    if (await Event_model.findOne({ "_id": event }) !== null) {
+        if (await checkCollectionExists("group_" + event)) {
             console.log()
-            if (await Groups("group_"+event).findOne({"_id":value}) === null){
-                throw new Error ("invalid group id")
+            if (await Groups("group_" + event).findOne({ "_id": value }) === null) {
+                throw new Error("invalid group id")
             }
             else {
                 return true
@@ -98,42 +98,33 @@ const group_checker = async (value , {req}) => {
 }
 
 
-const workshop_checker = async (value, {req}) => { 
+const workshop_checker = async (value, { req }) => {
     const event = req.body.event
     const mkdata = require("./states.json")
-    if (await Event_model.findOne({"_id" : event}) !== null){
-        if (await checkCollectionExists("particpants_"+event)){
-            const workshop_data = await workshop_model.find({"event" : event})
-            if (workshop_data == []){
+    if (await Event_model.findOne({ "_id": event }) !== null) {
+        if (await checkCollectionExists("particpants_" + event)) {
+            const workshop_data = await workshop_model.find({ "event": event })
+            if (workshop_data == []) {
                 throw new Error("workshop has not value")
             }
             else {
-                value.forEach((element) => {
-                    if (typeof element !== 'object'){
-                        throw new Error(element+" has not value")
-                    }
-                    else {
-                        const arr =Object.keys(element)
-                        if(arr.length=== 1){
-                            console.log(arr[0])
-                            if (workshop_data.some(data => data.title === arr[0])){
-                                if (element[arr[0]] === 0 || element[arr[0]] === 1 || element[arr[0]] ===2){
-                                    console.log("good")
-
-                                }
-                                else {
-                                    throw new Error(Object.keys(element)[0]+" enter valid value")
-                                }
-                            }
-                            else {
-                                throw new Error(Object.keys(element)[0]+" wokshop not found")
-                            }
+                var data_bool = false
+                if (typeof value === "object") {
+                    Object.keys(value).forEach((element) => {
+                        if (workshop_data.some(data => data.title === element)) {
+                            data_bool = true
+                            console.log(data_bool)
                         }
                         else {
-                            throw new Error(element+" should only one key")
+                            throw new Error("workshop not found")
                         }
-                    }
-                })
+                    })
+                }
+                else {
+                    throw new Error("workshop not object")
+                }
+                console.log("dsddd" + data_bool)
+                return data_bool
             }
         }
         else {
@@ -146,29 +137,59 @@ const workshop_checker = async (value, {req}) => {
 }
 
 
+const state_checker = async (value) => {
+    if (!require("./states.json")["states"].some(data => data.state === value)) {
+        throw new Error("state not found")
+    }
+    else
+        return true
+}
+
+const district_checker = async (value, { req }) => {
+    if (await state_checker(req.body.state) === true) {
+        const data = require("./states.json")["states"].find(sample => sample.state === req.body.state)
+        if (data.districts.some(element => element === value))
+            return true
+        else
+            throw new Error("distric not found")
+    }
+    else {
+        throw new Error("state not found")
+    }
+}
 
 const form_validator = [
     body("event").isMongoId(),
     body("name").isString(),
     body("email").isEmail().custom(email_checker),
-    body("phone").isMobilePhone(),
+    body("mobile").isMobilePhone(),
     body("group").isMongoId().custom(group_checker),
-    body("workshop").isArray().custom(workshop_checker)
+    body("workshops").isObject().custom(workshop_checker),
+    body("state").isString().custom(state_checker),
+    body("district").isString().custom(district_checker)
 ]
 
 
 
-router.post("/adder", form_validator, async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).send({ "errors": errors.array() })
+router.post("/add", form_validator, async (req, res) => {
+    try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).send({ "errors": errors.array() })
+        }
+        else {
+            const particiapant_model = Participants_Dynamic("particpants_" + req.body.event)
+            const model = new particiapant_model(req.body)
+            model.save()
+            return res.status(200).send({ "data": "saved" })
+        }
     }
-    else {
-        return res.status(200).send({ "data": "good" })
+    catch (error) {
+        res.status.json({ error })
     }
 })
 
-router.post("/add", async (req, res) => {
+router.post("/add1", async (req, res) => {
     const { name, mobile, email, event, group } = req.body;
 
     async function documentExist(objectId) {

@@ -38,18 +38,41 @@ router.get("/field/:eventid" , async (req , res ) => {
                 label : "Group" ,
                 type : "dropdown" ,
                 require :  true ,
-                value : data
+                value : data,
+                name : "group"
             },
             {
                 label : "workshops" ,
                 type : "card" ,
                 require :true ,
-                value : workshop_data
+                value : workshop_data,
+                name : "workshops"
             }
         ]
         await  workshop_model.find({event : event_data})
         return res.status(200).send({fields})
     }
+})
+
+
+router.get("/states", async(req ,res) => { 
+    const data = require("./states.json")
+    let states = []
+    data["states"].forEach((element) => {
+        states.push(element["state"])
+    })
+    return res.status(200).json({states})
+})
+
+router.get("/district/:state", async(req, res) => {
+    if(require("./states.json")["states"].some(data => data.state === req.params.state)){
+        const result = require("./states.json")["states"].find(({ state }) => state === req.params.state);
+        return res.status(200).send({result})
+    }
+    else {
+        return res.status(404).send({"error": "state name not valid"})
+    }
+
 })
 
 module.exports = router;

@@ -2,13 +2,17 @@ const express = require("express")
 const router = express.Router();
 const mongoose = require("mongoose")
 const readLine = require("readline")
-
+const { body, validationResult } = require("express-validator")
 // const { check, validationResult } = require("express-validator");
 const { Participants_Dynamic } = require("../../models/particpants")
 
 const Event_model = require("../../models/event")
-const Group_model = require("../../models/group")
-
+const Group_model = require("../../models/group");
+const { BSONSymbol } = require("mongodb");
+const { log } = require("console");
+const {Groups} = require("../../models/group")
+const db = require("../../db/connection")
+const workshop_model = require("../../models/workshop")
 function isValidObjectId(id) {
     return mongoose.Types.ObjectId.isValid(id);
 }
@@ -30,6 +34,139 @@ async function checkEventIdExists(id) {
     }
 }
 
+function checkCollectionExists(collectionName) {
+    return db.connection.db.listCollections({ name: collectionName }).next((err, collinfo) => {
+      if (err) {
+        console.error(`Error checking collection: ${err}`);
+        return false;
+      }
+      else {
+        return true;
+      }
+    });
+  }
+  
+
+
+const event_checker = async (value) => {
+    if ((await Event_model.findOne({ "_id": value })) === null) {
+        throw new Error("event id not exist")
+    }
+    else {
+        return true
+    }
+}
+
+const email_checker = async (value, { req, res }) => {
+    const event = req.body.event
+    if ((await Event_model.findOne({ "_id": event })) !== null) {
+        {
+            const particiapant_model = Participants_Dynamic("particpants_" + event);
+            if (await particiapant_model.findOne({"email": value}) !== null) {
+                throw new Error("email already exist")
+            }
+            else {
+                return true
+            }
+        }
+    }
+    else {
+        throw new Error("event not exist")
+    }
+}
+
+
+const group_checker = async (value , {req}) => {
+    const event = req.body.event
+    if (await Event_model.findOne({"_id" : event}) !== null){
+        if (await checkCollectionExists("group_"+event)){
+            console.log()
+            if (await Groups("group_"+event).findOne({"_id":value}) === null){
+                throw new Error ("invalid group id")
+            }
+            else {
+                return true
+            }
+        }
+        else {
+            throw new Error("group not exists")
+        }
+    }
+    else {
+        throw new Error("event not exists")
+    }
+}
+
+
+const workshop_checker = async (value, {req}) => { 
+    const event = req.body.event
+    const mkdata = require("./states.json")
+    if (await Event_model.findOne({"_id" : event}) !== null){
+        if (await checkCollectionExists("particpants_"+event)){
+            const workshop_data = await workshop_model.find({"event" : event})
+            if (workshop_data == []){
+                throw new Error("workshop has not value")
+            }
+            else {
+                value.forEach((element) => {
+                    if (typeof element !== 'object'){
+                        throw new Error(element+" has not value")
+                    }
+                    else {
+                        const arr =Object.keys(element)
+                        if(arr.length=== 1){
+                            console.log(arr[0])
+                            if (workshop_data.some(data => data.title === arr[0])){
+                                if (element[arr[0]] === 0 || element[arr[0]] === 1 || element[arr[0]] ===2){
+                                    console.log("good")
+
+                                }
+                                else {
+                                    throw new Error(Object.keys(element)[0]+" enter valid value")
+                                }
+                            }
+                            else {
+                                throw new Error(Object.keys(element)[0]+" wokshop not found")
+                            }
+                        }
+                        else {
+                            throw new Error(element+" should only one key")
+                        }
+                    }
+                })
+            }
+        }
+        else {
+            throw new Error("event not participant table not found")
+        }
+    }
+    else {
+        throw new Error("event not exists")
+    }
+}
+
+
+
+const form_validator = [
+    body("event").isMongoId(),
+    body("name").isString(),
+    body("email").isEmail().custom(email_checker),
+    body("phone").isMobilePhone(),
+    body("group").isMongoId().custom(group_checker),
+    body("workshop").isArray().custom(workshop_checker)
+]
+
+
+
+router.post("/adder", form_validator, async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).send({ "errors": errors.array() })
+    }
+    else {
+        return res.status(200).send({ "data": "good" })
+    }
+})
 
 router.post("/add", async (req, res) => {
     const { name, mobile, email, event, group } = req.body;
@@ -152,7 +289,7 @@ router.get("/get/:event", async (req, res) => {
 
     console.log(event);
     try {
-        console.log("return",await checkEventIdExists(event))
+        console.log("return", await checkEventIdExists(event))
         if (! await checkEventIdExists(event)) {
             const message = "not valid event id"
             return res.status(400).json({ message })

@@ -178,10 +178,14 @@ router.get("/details/:id", async (req, res) => {
     }
 });
 
+
+// date checker function 
 var isDate = function (date) {
     return (new Date(date) !== "Invalid Date") && !isNaN(new Date(date));
 }
 
+
+// is Array check funcion
 function isArray(variable) {
     return Array.isArray(variable);
 }
@@ -196,30 +200,42 @@ const editEvent = async (eventId, updatedEventData) => {
 };
 
 
-// router.post("/edit", async (req, res) => {
-//     try {
-//         const { title, description, venu, date, icon } = req.body;
-//         if (!title) {
-//             return res.status(403).json({ message: "title not entered", validation: false });
-//         }
 
-//         if (!description) {
-//             return res.status(403).json({ message: "description not entered", validation: false });
-//         }
-//         if (!venu) {
-//             return res.status(403).json({ message: "venu not entered", validation: false });
-//         }
-//         if (!date) {
-//             return res.status(403).json({ message: "event date not entered", validation: false });
-//         }
-//         if (!icon) {
-//             return res.status(403).json({ message: "icon not entered", validation: false });
-//         }
-//     }
-//     catch (error) {
 
-//     }
-// })
+
+router.post("/edit", async (req, res) => {
+    try {
+        const { title, description, venu, date, icon ,start_date_time , end_date_time } = req.body;
+        if (!title) {
+            return res.status(403).json({ message: "title not entered", validation: false });
+        }
+
+        if (!description) {
+            return res.status(403).json({ message: "description not entered", validation: false });
+        }
+        if (!venu) {
+            return res.status(403).json({ message: "venu not entered", validation: false });
+        }
+        if (!date) {
+            return res.status(403).json({ message: "event date not entered", validation: false });
+        }
+        if (!icon) {
+            return res.status(403).json({ message: "icon not entered", validation: false });
+        }
+        if (!start_date_time){
+            return res.status(403).json({ message: "start date and time not entered", validation: false });
+        }
+        if (!end_date_time){
+            return res.status(403).json({ message: "end date and time not entered", validation: false })
+        }
+        console.log("data added")
+        editEvent(req.body._id,req.body);
+        return res.status(200).json({"message" : "data added"})
+    }
+    catch (error) {
+        return res.status(400).json({ message: "error while edit data", validation: false })
+    }
+})
 
 
 module.exports = router;

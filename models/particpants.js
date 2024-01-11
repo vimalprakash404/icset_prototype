@@ -28,7 +28,20 @@ const dynamic_schema = new mongoose.Schema({
     time_stamp: {
         type: Date,
         default: null
-    }
+    },
+    state : {
+        type : String,
+        default : null
+    },
+    district : {
+        type : String,
+        default : null
+    },
+    gender : {
+        type : String , 
+        enum : [ "male", "female", "others"],
+        default : null
+    } 
 })
 
 

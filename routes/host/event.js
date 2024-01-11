@@ -77,7 +77,7 @@ router.post("/create", authentication, isHost, async (req, res) => {
 
 
 function worshop_inserter(data, res, event_Id) {
-    const { workshopname, workshopdescription, workshopvenue, workshopicon, workshopdate } = data;
+    const { workshopname, workshopdescription, workshopvenue, workshopicon, workshopdate , maximumparticipant } = data;
     if (workshopname === undefined) {
         const message = "workshop name  undefined"
         return res.status(400).json({ message })
@@ -95,7 +95,12 @@ function worshop_inserter(data, res, event_Id) {
         return res.status(400).json({ message })
     }
     if (workshopicon === undefined) {
-        const message = "worhshop icon is not defined"
+        const message = "workshop icon is not defined"
+        return res.status(400).json({ message })
+    }
+    if (maximumparticipant)
+    {
+        const message = "maximum participants not valid"
         return res.status(400).json({ message })
     }
     workshop_saver(workshopname, workshopdescription, workshopvenue, workshopdate, event_Id, workshopicon, res)

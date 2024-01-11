@@ -136,6 +136,46 @@ const workshop_checker = async (value, { req }) => {
     }
 }
 
+function isMongoId(str) {
+ 
+    const objectIdPattern = /^[0-9a-fA-F]{24}$/;
+    return objectIdPattern.test(str);
+  }
+
+const workshop_c = async (value,{req}) =>{
+    var bool_val = false ;
+    var worshop_data = {}
+   for (let i = 0 ; i< value.length;i++)
+    {
+        var element = value[i]
+        if(isMongoId(element)){
+            if (await workshop_model.findOne({"_id":element,event : req.body.event})!== null)
+            {
+                console.log(element)
+                bool_val = true ;
+                
+            }
+            else{
+                console.log("false :"+element)
+                bool_val = false ;
+                break
+            }
+        }
+        else{
+            console.log("false :"+element)
+            bool_val = false ;
+            break
+        }
+    }
+    
+    if (bool_val == false){
+        throw new Error("invalid workshop id ")
+    }
+    else {
+        req.body.workshops= worshop_data
+        return true 
+    }
+}
 
 const state_checker = async (value) => {
     if (!require("./states.json")["states"].some(data => data.state === value)) {
@@ -157,6 +197,15 @@ const district_checker = async (value, { req }) => {
         throw new Error("state not found")
     }
 }
+const gender_checker = (value) =>{
+    if (! (value === "male" || value === "female" || value === "other")){
+            throw new Error("gender value is not valid please enter male , female or other")
+    }
+    else {
+        return true
+    }
+}
+
 
 const form_validator = [
     body("event").isMongoId(),
@@ -164,21 +213,30 @@ const form_validator = [
     body("email").isEmail().custom(email_checker),
     body("mobile").isMobilePhone(),
     body("group").isMongoId().custom(group_checker),
-    body("workshops").isObject().custom(workshop_checker),
+    body("workshops").isArray().custom(workshop_c),
     body("state").isString().custom(state_checker),
-    body("district").isString().custom(district_checker)
+    body("district").isString().custom(district_checker),
+    body("gender").isString().custom(gender_checker)
 ]
 
 
 
 router.post("/add", form_validator, async (req, res) => {
     try {
+        
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             return res.status(400).send({ "errors": errors.array() })
         }
         else {
             const particiapant_model = Participants_Dynamic("particpants_" + req.body.event)
+            var workshop_data ={}
+            for (let i =0 ; i< req.body.workshops.length;i++)
+            {
+                workshop_data[(await workshop_model.findOne({"_id":req.body.workshops[i],event : req.body.event}))["title"]] = 1 ;
+            }
+            req.body.workshops=workshop_data;
+            console.log(req.body.workshops)
             const model = new particiapant_model(req.body)
             model.save()
             return res.status(200).send({ "data": "saved" })

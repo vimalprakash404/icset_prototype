@@ -8,13 +8,18 @@ const eventSchema = new mongoos.Schema({
     },
     description : String ,
     venu : String,
-    date : Date,
+    date : {
+        type : Date ,
+        require : true 
+    },
     workshops : Array, 
     host : {
         type : mongoos.Schema.Types.ObjectId,
         ref : 'User',
     },
-    icon :  String
+    icon :  String,
+    start_date_time : Date,
+    end_date_time : Date
 });
 
 const Event = mongoos.model('Event',eventSchema);

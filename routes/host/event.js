@@ -18,7 +18,7 @@ router.get("/test", authentication, isHost, async (req, res) => {
 
 
 router.post("/create", authentication, isHost, async (req, res) => {
-    const { title, description, venu, date, workshops, icon } = req.body;
+    var { title, description, venu, date, workshops, icon , start_date_time , end_date_time} = req.body;
     // console.log(req.user.userId);
     if (!title) {
         return res.status(403).json({ message: "title not entered", validation: false });
@@ -45,11 +45,23 @@ router.post("/create", authentication, isHost, async (req, res) => {
     if (!workshops) {
         return res.status(403).json({ message: "workshops not entered", validation: false });
     }
+    if(!start_date_time)
+    {
+        return res.status(403).json({ message: "start date and time not specified", validation: false });
+    }
+    if(!end_date_time)
+    {
+        return res.status(403).json({ message:"end date and time not specified", validation: false });
+    }
     else {
         if (!isArray(workshops)) {
-            return res.status(403).json({ message: "workkshops should be in array ", validation: false })
+            return res.status(403).json({ message: "workshops should be in array ", validation: false })}
+        if(!isDate(end_date_time)){
+            return res.status(403).json({ message: "end date is not valid", validation: false })
         }
-
+        if(!isDate(start_date_time)){
+            return res.status(403).json({ message: "start date is not valid", validation: false })
+        }
     }
     let workkshops_names = []
 
@@ -58,15 +70,25 @@ router.post("/create", authentication, isHost, async (req, res) => {
     // const host = req.user.userId;
 
     const host = req.user.userId;
-    let event_ob = new Event({ title, description, venu, date, workshops, host, icon });
+    date = new Date(req.body.date)
+    console.log(req.body.date)
+    console.log(date)
+
+    console.log(date.toISOString()); // This will print in UTC
+    console.log(date.toString());  
+    let event_ob = new Event({ title, description, venu, date, workshops, host, icon , start_date_time , end_date_time });
     for (let i = 0; i < workshops.length; i++) {
         if (!isObject(workshops[i])) {
             return res.status(400).send({ "message": "workshop is not valid form" })
 
         }
         else {
-            if (worshop_inserter(workshops[i], res, event_ob._id))
+            if ((worshop_inserter(workshops[i], res, event_ob._id)))
                 workkshops_names.push(workshops[i].workshopname)
+            else {
+                return
+            }
+
         }
     }
     event_ob.workshops = workkshops_names;
@@ -80,37 +102,44 @@ function worshop_inserter(data, res, event_Id) {
     const { workshopname, workshopdescription, workshopvenue, workshopicon, workshopdate , maximumparticipant } = data;
     if (workshopname === undefined) {
         const message = "workshop name  undefined"
-        return res.status(400).json({ message })
+        res.status(400).json({ message })
+        return false
     }
     if (workshopdescription === undefined) {
         const message = "workshop description is undefined"
-        return res.status(400).json({ message })
+        res.status(400).json({ message })
+        return false
     }
     if (workshopdate === undefined) {
         const message = "workshop date is not defined  " + workshopname
-        return res.status(400).json({ message })
+        res.status(400).json({ message })
+        return false
     }
     if (workshopvenue === undefined) {
         const message = "workshop venu is not defined"
-        return res.status(400).json({ message })
+        res.status(400).json({ message })
+        return false
     }
     if (workshopicon === undefined) {
         const message = "workshop icon is not defined"
-        return res.status(400).json({ message })
+        res.status(400).json({ message })
+        return false
     }
-    if (maximumparticipant)
+    if (maximumparticipant === undefined)
     {
         const message = "maximum participants not valid"
-        return res.status(400).json({ message })
+         res.status(400).json({ message })
+         return false
+         
     }
-    workshop_saver(workshopname, workshopdescription, workshopvenue, workshopdate, event_Id, workshopicon, res)
+    workshop_saver(workshopname, workshopdescription, workshopvenue, workshopdate, event_Id, workshopicon,maximumparticipant ,res)
     return true
 
 }
 
-function workshop_saver(title, description, venu, date, event, icon, res) {
+function workshop_saver(title, description, venu, date, event, icon, maximumparticipant,res) {
     try {
-        const data = new worhshop_model({ title, description, venu, date, event, icon })
+        const data = new worhshop_model({ title, description, venu, date, event, icon ,maximumparticipant })
         data.save()
     }
     catch (error) {

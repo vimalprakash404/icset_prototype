@@ -44,7 +44,7 @@ router.post("/verify", auth, isVolunter, async (req, res) => {
             return res.status(200).send({ "message": "please the userid ", 'validation': false });
         }
         else if (!eventid) {
-            return res.status(200).send({ "message": "plesae the eventid", "validation": false });
+            return res.status(200).send({ "message": "please the eventid", "validation": false });
         }
 
         const model_name = "particpants_" + eventid;
@@ -52,7 +52,7 @@ router.post("/verify", auth, isVolunter, async (req, res) => {
         const particpants_model = Participants_Dynamic(model_name);
         const data = await particpants_model.findOne({ event: eventid, _id: userid });
 
-        if (data.workshops[workshop] === 0) {
+        if (data.workshops[workshop] === 0 || data.workshops[workshop] === undefined) {
             return res.status(200).json({ "verification": false, "message": "not register for work shop" })
         }
         else if (data.workshops[workshop] === 2) {
@@ -115,7 +115,7 @@ router.post("/unverify", auth, isVolunter, async (req, res) => {
         const particpants_model = Participants_Dynamic(model_name);
         const data = await particpants_model.findOne({ event: eventid, _id: userid });
 
-        if (data.workshops[workshop] === 0) {
+        if (data.workshops[workshop] === 0 || data.workshops[workshop] === undefined) {
             return res.status(200).json({ "verification": false, "message": "not register for work shop" })
         }
         else if (data.workshops[workshop] === 1) {
@@ -259,7 +259,7 @@ router.get("/getusergroup/unverify/:eventid/:groupid/:workshop", async (req, res
     }
 
 })
-
+//function for time stamp function
 async function getVerifiedUsersAfterTimestamp(event_id, timestamp) {
     try {
         const model_name = "particpants_" + event_id;

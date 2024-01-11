@@ -17,6 +17,10 @@ const workshopSchema=  new mongoose.Schema({
     icon : {
         type  :  String  ,
         require : true 
+    }, 
+    maximumparticipant : {
+        type : Number ,
+        require : true
     }
 })
 

@@ -101,6 +101,7 @@ async function create_event (title, description, event, date, venu)
 
 }
 
+//express-validator  for add  
 const validateWorkshop = [
     body("title").isString().notEmpty(),
     body("description").isString(),
@@ -108,9 +109,10 @@ const validateWorkshop = [
     body("date").isISO8601().toDate(),
     body("event").isMongoId(),
     body("icon").isString().notEmpty(),
+    body("maximumparticipant").isNumeric(),
   ];
 
-
+// workshop for add api
 workshop_router.post("/add", validateWorkshop, async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -132,8 +134,7 @@ workshop_router.post("/add", validateWorkshop, async (req, res) => {
     }
   });
 
-//Edit Api 
-
+//api end point for delete api
 workshop_router.post("/edit/:id", validateWorkshop, async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -161,6 +162,7 @@ workshop_router.post("/edit/:id", validateWorkshop, async (req, res) => {
     }
   });
 
+  // api end point for delete workshop by id
   workshop_router.post("/delete/:id", async (req, res) => {
     try {
         const deletedWorkshop = await workshop_model.findByIdAndDelete(req.params.id);
@@ -177,7 +179,7 @@ workshop_router.post("/edit/:id", validateWorkshop, async (req, res) => {
 });
   
 
-
+//api end point for getting work shop by id
 workshop_router.get("/get/byEvent/:eventId", async (req, res) => {
     try {
       const workshops = await workshop_model.find({ event: req.params.eventId });

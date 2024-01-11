@@ -19,7 +19,11 @@ const eventSchema = new mongoos.Schema({
     },
     icon :  String,
     start_date_time : Date,
-    end_date_time : Date
+    end_date_time : Date,
+    cancel : {
+        type : Boolean , 
+        default : false
+    }
 });
 
 const Event = mongoos.model('Event',eventSchema);

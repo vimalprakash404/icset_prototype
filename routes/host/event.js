@@ -19,7 +19,6 @@ router.get("/test", authentication, isHost, async (req, res) => {
 
 router.post("/create", authentication, isHost, async (req, res) => {
     var { title, description, venu, date, workshops, icon , start_date_time , end_date_time} = req.body;
-    // console.log(req.user.userId);
     if (!title) {
         return res.status(403).json({ message: "title not entered", validation: false });
     }
@@ -216,9 +215,6 @@ router.post("/edit", async (req, res) => {
         if (!venu) {
             return res.status(403).json({ message: "venu not entered", validation: false });
         }
-        if (!date) {
-            return res.status(403).json({ message: "event date not entered", validation: false });
-        }
         if (!icon) {
             return res.status(403).json({ message: "icon not entered", validation: false });
         }
@@ -237,5 +233,23 @@ router.post("/edit", async (req, res) => {
     }
 })
 
+
+// api end point for cancel event 
+router.post("/cancel",async(req,res)=> {
+    try{
+        const {id} =req.body;
+        const data=await Event.findByIdAndUpdate({"_id":id},{"cancel" : true})
+        console.log(data)
+        if(data === null){
+            return res.status(400).json({"message" : "user not exist"})
+        }
+        else{
+            return res.status(200).json({"message" : "updated"})
+        }
+    }
+    catch (error){
+        return res.status(400).json({"message" : error})
+    }
+})
 
 module.exports = router;

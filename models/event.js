@@ -8,10 +8,6 @@ const eventSchema = new mongoos.Schema({
     },
     description : String ,
     venu : String,
-    date : {
-        type : Date ,
-        require : true 
-    },
     workshops : Array, 
     host : {
         type : mongoos.Schema.Types.ObjectId,
@@ -22,6 +18,10 @@ const eventSchema = new mongoos.Schema({
     end_date_time : Date,
     cancel : {
         type : Boolean , 
+        default : false
+    },
+    approve : {
+        type :Boolean ,
         default : false
     }
 });

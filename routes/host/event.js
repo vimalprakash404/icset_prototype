@@ -29,17 +29,8 @@ router.post("/create", authentication, isHost, async (req, res) => {
     if (!venu) {
         return res.status(403).json({ message: "venu not entered", validation: false });
     }
-    if (!date) {
-        return res.status(403).json({ message: "event date not entered", validation: false });
-    }
     if (!icon) {
         return res.status(403).json({ message: "icon not entered", validation: false });
-    }
-    else {
-        if (!isDate(date)) {
-            return res.status(403).json({ message: "event date is not valid", validation: false })
-        }
-
     }
     if (!workshops) {
         return res.status(403).json({ message: "workshops not entered", validation: false });

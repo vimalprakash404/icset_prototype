@@ -11,13 +11,12 @@ const public = require("./routes/public/public")
 // import host functions
 const host = require("./routes/host/host");
 const volunteer = require("./routes/public/volunter")
-
+const admin = require("./routes/admin/admin")
 // const { default: mongoose } = require('mongoose');
 const  register = require("./routes/authentication/register")
 
 
 require('dotenv').config();
-const mongoose = require("./db/connection")
 const port = process.env.PORT || 3000; 
 const app = express();
 app.use(express.json());
@@ -28,7 +27,7 @@ app.use(cors());
 app.use('/auth',authRoutes);
 app.use("/host",host);
 app.use("/",public);
-
+app.use("/admin",admin);
 app.use("/volunter",volunteer);
 app.get("/",(req, res)=>{
     return res.send("hello");

@@ -18,7 +18,7 @@ const workshopSchema=  new mongoose.Schema({
         type  :  String  ,
         require : true 
     }, 
-    maximumparticipant : {
+    maximumparticipants : {
         type : Number ,
         require : true
     }

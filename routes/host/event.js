@@ -60,12 +60,7 @@ router.post("/create", authentication, isHost, async (req, res) => {
     // const host = req.user.userId;
 
     const host = req.user.userId;
-    date = new Date(req.body.date)
-    console.log(req.body.date)
-    console.log(date)
-
-    console.log(date.toISOString()); // This will print in UTC
-    console.log(date.toString());  
+     
     let event_ob = new Event({ title, description, venu, date, workshops, host, icon , start_date_time , end_date_time });
     for (let i = 0; i < workshops.length; i++) {
         if (!isObject(workshops[i])) {

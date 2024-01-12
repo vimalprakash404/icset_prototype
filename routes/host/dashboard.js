@@ -7,6 +7,7 @@ const Event = require("../../models/event")
 
 
 router.get("/:event",async (req, res) => {
+  try{
     const event_id = req.params.event
     console.log(event_id)
     const modelName = "particpants_" + event_id;
@@ -40,6 +41,10 @@ router.get("/:event",async (req, res) => {
         })
       }
     res.status(200).send({total_user , total_verified , workshoplist, verfied_workshop, total_workshop})
-})
+}
+catch(error){
+  console.error(error);
+  res.status(500).send({error})
+}})
 
 module.exports = router 

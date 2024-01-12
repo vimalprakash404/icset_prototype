@@ -109,7 +109,7 @@ const validateWorkshop = [
     body("date").isISO8601().toDate(),
     body("event").isMongoId(),
     body("icon").isString().notEmpty(),
-    body("maximumparticipant").isNumeric(),
+    body("maximumparticipants").isNumeric(),
   ];
 
 // workshop for add api

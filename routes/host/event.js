@@ -84,7 +84,7 @@ router.post("/create", authentication, isHost, async (req, res) => {
 
 
 function worshop_inserter(data, res, event_Id) {
-    const { workshopname, workshopdescription, workshopvenue, workshopicon, workshopdate , maximumparticipant } = data;
+    const { workshopname, workshopdescription, workshopvenue, workshopicon, workshopdate , maximumparticipants } = data;
     if (workshopname === undefined) {
         const message = "workshop name  undefined"
         res.status(400).json({ message })
@@ -110,7 +110,7 @@ function worshop_inserter(data, res, event_Id) {
         res.status(400).json({ message })
         return false
     }
-    if (maximumparticipant === undefined)
+    if (maximumparticipants === undefined)
     {
         const message = "maximum participants not valid"
          res.status(400).json({ message })
@@ -124,7 +124,7 @@ function worshop_inserter(data, res, event_Id) {
 
 function workshop_saver(title, description, venu, date, event, icon, maximumparticipant,res) {
     try {
-        const data = new worhshop_model({ title, description, venu, date, event, icon ,maximumparticipant })
+        const data = new worhshop_model({ title, description, venu, date, event, icon ,maximumparticipants })
         data.save()
     }
     catch (error) {

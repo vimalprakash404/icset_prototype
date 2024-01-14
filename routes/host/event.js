@@ -17,18 +17,22 @@ router.get("/test", authentication, isHost, async (req, res) => {
 router.delete("/", async (req, res) => {
     try {
         const { id } = req.body; // Assuming the ID is sent in the request body
-        const data = await Event.findByIdAndDelete({ _id: id }); // Fix the variable name eventId to id
-        if (data === null) {
-            await worhshop_model.findByIdAndDelete({event : id})
-            return res.status(404).json({"message" : "event not fount"})
-        }
-        else {
-        return res.status(200).json({ "message": "deleted" });
+
+        // Delete the event by ID
+        const deletedEvent = await Event.findByIdAndDelete(id);
+
+        if (deletedEvent !== null) {
+            // If the event was found and deleted by ID, delete workshops based on the 'event' field
+            await worhshop_model.deleteMany({ "event": id });
+            return res.status(200).json({ "message": "Deleted event and associated workshops" });
+        } else {
+            return res.status(404).json({ "message": "Event not found" });
         }
     } catch (error) {
-        return res.status(400).json({ "message": error.message }); // Use error.message to get the error message
+        return res.status(400).json({ "message": error.message });
     }
 });
+
 
 
 router.post("/create", authentication, isHost, async (req, res) => {

@@ -14,11 +14,10 @@ router.get("/test", authentication, isHost, async (req, res) => {
     res.status(400).json({ "message": req.user.userId, "user type": req.user.role })
 })
 
-router.delete("/", async (req, res) => {
+router.post("/", async (req, res) => {
     try {
         const { id } = req.body; // Assuming the ID is sent in the request body
-
-        // Delete the event by ID
+        console.log(id)
         const deletedEvent = await Event.findByIdAndDelete(id);
 
         if (deletedEvent !== null) {

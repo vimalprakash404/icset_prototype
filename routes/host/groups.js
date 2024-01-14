@@ -48,6 +48,7 @@ router.post("/add", group_validator, async (req, res) => {
   }
   else {
     if (await event_model.findOne({ _id: req.body.event }).exists) {
+      console.log(req.body.event)
       const data_model = Groups("group_" + req.body.event)
       const group = new data_model(req.body);
       group.save();

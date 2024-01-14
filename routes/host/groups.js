@@ -1,9 +1,9 @@
 const express = require("express")
-const db = require("../../db/connection")
 const router = express.Router()
 const { Groups } = require("../../models/group")
 const event_model = require("../../models/event")
 const { body, validationResult } = require("express-validator");
+const db = require("../../db/connection")
 
 
 function checkCollectionExists(collectionName) {
@@ -21,7 +21,7 @@ function checkCollectionExists(collectionName) {
 
 router.get("/:eventId", async (req, res) => {
   const { eventId } = req.params
-  if ((await checkCollectionExists("group_" + eventId)) === null) {
+  if ((await checkCollectionExists("group_" + eventId)) === false) {
     return res.status(404).json({ message: "event not found" })
   }
   else {

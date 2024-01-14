@@ -5,37 +5,49 @@ const bcrypt = require("bcrypt");
 const jwt = require('jsonwebtoken')
 
 
-router.post("/register",async (req , res )=>{
+const router = require('express').Router();
+const bcrypt = require('bcrypt');
+const User = require('../models/User');
+
+router.post("/register", async (req, res) => {
     try {
-        const { username , email , password , role ,mobile , organization } = req.body;
-        const hashedPassword =  await bcrypt.hash(password,10);
-        const user = new User({username , email , password : hashedPassword , role   ,mobile , organization});
+        const { username, email, password, role, mobile, organization } = req.body;
+
+        // Email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({ error: 'Invalid email format. Please provide a valid email address.' });
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const user = new User({ username, email, password: hashedPassword, role, mobile, organization });
 
         if (!/^\d{10}$/.test(mobile)) {
             return res.status(400).json({ error: 'Invalid mobile number format. Please provide a 10-digit number.' });
-          }
-          if (role === "host")
-          {
-            console.log(organization)
-            if ( organization === undefined )
-            {
-                return res.status(400).json({message : "please enter the organisation name "})
-            }
-          }
-        if (await User.findOne({ email: email }))
-        {
-            return res.status(400).json({message : "email already used"})
         }
+
+        if (role === "host") {
+            console.log(organization);
+            if (organization === undefined) {
+                return res.status(400).json({ message: "Please enter the organization name." });
+            }
+        }
+
+        if (await User.findOne({ email: email })) {
+            return res.status(400).json({ message: "Email already used." });
+        }
+
         console.log(user);
         await user.save();
-        return res.status(201).json({message : "User registered successfully"});
-    }
-    catch (error)
-    {
+        return res.status(201).json({ message: "User registered successfully" });
+    } catch (error) {
         console.log(error);
-        return res.status(500).json({error : "Registration failed"});
+        return res.status(500).json({ error: "Registration failed" });
     }
-})
+});
+
+module.exports = router;
+
 
 
 router.post("/login",async (req, res)=> {

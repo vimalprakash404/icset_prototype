@@ -14,7 +14,21 @@ router.get("/test", authentication, isHost, async (req, res) => {
     res.status(400).json({ "message": req.user.userId, "user type": req.user.role })
 })
 
-
+router.delete("/", async (req, res) => {
+    try {
+        const { id } = req.body; // Assuming the ID is sent in the request body
+        const data = await Event.findByIdAndDelete({ _id: id }); // Fix the variable name eventId to id
+        if (data === null) {
+            await worhshop_model.findByIdAndDelete({event : id})
+            return res.status(404).json({"message" : "event not fount"})
+        }
+        else {
+        return res.status(200).json({ "message": "deleted" });
+        }
+    } catch (error) {
+        return res.status(400).json({ "message": error.message }); // Use error.message to get the error message
+    }
+});
 
 
 router.post("/create", authentication, isHost, async (req, res) => {
@@ -117,12 +131,12 @@ function worshop_inserter(data, res, event_Id) {
          return false
          
     }
-    workshop_saver(workshopname, workshopdescription, workshopvenue, workshopdate, event_Id, workshopicon,maximumparticipant ,res)
+    workshop_saver(workshopname, workshopdescription, workshopvenue, workshopdate, event_Id, workshopicon,maximumparticipants ,res)
     return true
 
 }
 
-function workshop_saver(title, description, venu, date, event, icon, maximumparticipant,res) {
+function workshop_saver(title, description, venu, date, event, icon, maximumparticipants,res) {
     try {
         const data = new worhshop_model({ title, description, venu, date, event, icon ,maximumparticipants })
         data.save()
@@ -237,5 +251,6 @@ router.post("/cancel",async(req,res)=> {
         return res.status(400).json({"message" : error})
     }
 })
+
 
 module.exports = router;

@@ -48,7 +48,6 @@ router.post("/verify", auth, isVolunter, async (req, res) => {
         }
 
         const model_name = "particpants_" + eventid;
-        console.log(model_name);
         const particpants_model = Participants_Dynamic(model_name);
         const data = await particpants_model.findOne({ event: eventid, _id: userid });
 
@@ -287,7 +286,7 @@ async function getMaxTime(event_id) {
         const model_name = "particpants_" + event_id;
         const particpants_model = Participants_Dynamic(model_name);
         const latestDocument = await particpants_model.findOne({}).sort({ time_stamp: -1 });
-        
+
         if (latestDocument) {
             // Use the specified field name to extract the value
             const fieldValue = latestDocument["time_stamp"];
@@ -303,29 +302,29 @@ async function getMaxTime(event_id) {
     }
 }
 
-router.get("/get/event",async (req , res) => {
+router.get("/get/event", async (req, res) => {
     const event = "this event"
     try {
         const data = await event_model.find();
-        return res.status(200).json({data})
+        return res.status(200).json({ data })
     }
-    catch(error){
+    catch (error) {
         res.status(500).send('Internal Server Error');
     }
-    
+
 })
 
 
-router.post("/timestamp",async (req, res) => {
+router.post("/timestamp", async (req, res) => {
     const { event, timestamp } = req.body;
     if (timestamp === null) {
-        const particpants =await getVerifiedUsersAfterTimestamp(event, timestamp);
-        const Time =await getMaxTime(event)
+        const particpants = await getVerifiedUsersAfterTimestamp(event, timestamp);
+        const Time = await getMaxTime(event)
         return res.status(200).json({ particpants, Time })
     }
     else {
-        const particpants =await getVerifiedUsersAfterTimestamp(event, timestamp);
-        const time =await getMaxTime(event)
+        const particpants = await getVerifiedUsersAfterTimestamp(event, timestamp);
+        const time = await getMaxTime(event)
         return res.status(200).json({ particpants, time })
     }
 })

@@ -21,7 +21,9 @@ const workshopSchema=  new mongoose.Schema({
     maximumparticipants : {
         type : Number ,
         require : true
-    }
+    },
+    startdate : Date ,
+    enddate  :  Date , 
 })
 
 

@@ -3,7 +3,7 @@ const router = express.Router();
 const authentication = require("../../middleware/auth")
 const { isHost } = require("../../middleware/host")
 const Event = require("../../models/event");
-const { ObjectId } = require('mongodb');
+const { ObjectId, ReturnDocument } = require('mongodb');
 
 const worhshop_model = require("../../models/workshop")
 function isObject(data) {
@@ -101,7 +101,7 @@ router.post("/create", authentication, isHost, async (req, res) => {
 
 
 function worshop_inserter(data, res, event_Id) {
-    const { workshopname, workshopdescription, workshopvenue, workshopicon, workshopdate , maximumparticipants } = data;
+    const { workshopname, workshopdescription, workshopvenue, workshopicon , maximumparticipants , startdate ,enddate  } = data;
     if (workshopname === undefined) {
         const message = "workshop name  undefined"
         res.status(400).json({ message })
@@ -109,11 +109,6 @@ function worshop_inserter(data, res, event_Id) {
     }
     if (workshopdescription === undefined) {
         const message = "workshop description is undefined"
-        res.status(400).json({ message })
-        return false
-    }
-    if (workshopdate === undefined) {
-        const message = "workshop date is not defined  " + workshopname
         res.status(400).json({ message })
         return false
     }
@@ -134,18 +129,30 @@ function worshop_inserter(data, res, event_Id) {
          return false
          
     }
-    workshop_saver(workshopname, workshopdescription, workshopvenue, workshopdate, event_Id, workshopicon,maximumparticipants ,res)
+    if (startdate ===  undefined) {
+        const message = "start date is not entered"
+        res.status(400).json({message})
+        return false
+    }
+    if (enddate === undefined)
+    {
+         const message =  " end date is not entered"
+         res.status(400).json({message})
+         return false 
+    }
+    workshop_saver(workshopname, workshopdescription, workshopvenue, event_Id, workshopicon,maximumparticipants ,res)
     return true
 
 }
 
-function workshop_saver(title, description, venu, date, event, icon, maximumparticipants,res) {
+function workshop_saver(title, description, venu, event, icon, maximumparticipants,res ,startdate  , enddate) {
     try {
-        const data = new worhshop_model({ title, description, venu, date, event, icon ,maximumparticipants })
+        const data = new worhshop_model({ title, description, venu,  event, icon ,maximumparticipants ,startdate  , enddate})
         data.save()
     }
     catch (error) {
-        return res.status(400).send({ error })
+        console.log(error)
+        return res.status(400).send({ error : "jiihhi" })
     }
 }
 

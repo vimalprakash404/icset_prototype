@@ -110,6 +110,8 @@ const validateWorkshop = [
     body("event").isMongoId(),
     body("icon").isString().notEmpty(),
     body("maximumparticipants").isNumeric(),
+    body("startdate").isISO8601().toDate(),
+    body("endate").isISO8601().toDate()
   ];
 
 // workshop for add api

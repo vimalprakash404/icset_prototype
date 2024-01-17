@@ -106,7 +106,6 @@ const validateWorkshop = [
     body("title").isString().notEmpty(),
     body("description").isString(),
     body("venu").isString(),
-    body("date").isISO8601().toDate(),
     body("event").isMongoId(),
     body("icon").isString().notEmpty(),
     body("maximumparticipants").isNumeric(),

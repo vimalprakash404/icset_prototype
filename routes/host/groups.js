@@ -22,7 +22,12 @@ function checkCollectionExists(collectionName) {
 router.get("/:eventId", async (req, res) => {
   const { eventId } = req.params
   if ((await checkCollectionExists("group_" + eventId)) === false) {
-    return res.status(404).json({ message: "event not found" })
+    if ((await checkCollectionExists("group_" + eventId+"s")) === false) {
+      return res.status(404).json({ message: "event not found" })
+    }
+    else {
+      return res.status(200).json({ "data": await Groups("group_" + eventId).find({}) })
+    }
   }
   else {
     return res.status(200).json({ "data": await Groups("group_" + eventId).find({}) })
@@ -84,30 +89,29 @@ router.post("/edit", edit_group_validator, async (req, res) => {
   }
 })
 
-const delete_group_is_validator  = [
+const delete_group_is_validator = [
   body("id").isMongoId(),
   body("event").isMongoId()
 ]
 
 
-router.post("/delete" , delete_group_is_validator,async (req , res) => {
+router.post("/delete", delete_group_is_validator, async (req, res) => {
   const error = validationResult(req)
-  if (!error.isEmpty())
-  {
-    return res.status(400).json({error : error.array()})
+  if (!error.isEmpty()) {
+    return res.status(400).json({ error: error.array() })
   }
-  if (await event_model.findOne({_id : req.body.id}).exists){
-    if ((await checkCollectionExists("group_"+req.body.event))!==null){
+  if (await event_model.findOne({ _id: req.body.id }).exists) {
+    if ((await checkCollectionExists("group_" + req.body.event)) !== null) {
       const data_model = Groups("group_" + req.body.event)
       await data_model.findOneAndDelete(req.params.id)
-      return res.status(200).json({"message" : "deleted"})
+      return res.status(200).json({ "message": "deleted" })
     }
     else {
-      return res.status(404).json({"message" : "group not found"})
+      return res.status(404).json({ "message": "group not found" })
     }
   }
-  else{
-    return res.status(404).json({"message" : "event not found"})
+  else {
+    return res.status(404).json({ "message": "event not found" })
   }
 })
 

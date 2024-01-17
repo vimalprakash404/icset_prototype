@@ -21,7 +21,6 @@ async function checkEventIdExists(id) {
     try {
         if (isValidObjectId(id)) {
             const workshop = await Event_model.findById(id);
-            console.log("dataijaiajai" + !!workshop)
             return !!workshop; // Returns true if the workshop is found, false otherwise
         }
         else {
@@ -79,8 +78,7 @@ const email_checker = async (value, { req, res }) => {
 const group_checker = async (value, { req }) => {
     const event = req.body.event
     if (await Event_model.findOne({ "_id": event }) !== null) {
-        if (await checkCollectionExists("group_" + event)) {
-            console.log()
+        if ((await checkCollectionExists("group_" + event)) || (await checkCollectionExists("group_" + event+"s"))) {
             if (await Groups("group_" + event).findOne({ "_id": value }) === null) {
                 throw new Error("invalid group id")
             }
@@ -102,7 +100,7 @@ const workshop_checker = async (value, { req }) => {
     const event = req.body.event
     const mkdata = require("./states.json")
     if (await Event_model.findOne({ "_id": event }) !== null) {
-        if (await checkCollectionExists("particpants_" + event)) {
+        if ((await checkCollectionExists("particpants_" + event))||(await checkCollectionExists("particpants_" + event+"s"))) {
             const workshop_data = await workshop_model.find({ "event": event })
             if (workshop_data == []) {
                 throw new Error("workshop has not value")
